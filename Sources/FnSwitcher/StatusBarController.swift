@@ -13,9 +13,9 @@ final class StatusBarController: NSObject, NSMenuDelegate {
     private let launchAtLoginItem = NSMenuItem(title: "Launch at Login", action: nil, keyEquivalent: "")
     private let settingsItem = NSMenuItem(title: "Settings…", action: nil, keyEquivalent: ",")
 
-    /// Wired by the app delegate (Task 5).
+    /// Wired by the app delegate.
     var onOpenSettings: (() -> Void)?
-    /// Wired by the app delegate (Task 6). Nil hides the menu item.
+    /// Wired by the app delegate. Nil hides the menu item.
     var launchAtLoginProvider: (() -> Bool)?
     var onToggleLaunchAtLogin: (() -> Void)?
 
@@ -68,7 +68,7 @@ final class StatusBarController: NSObject, NSMenuDelegate {
         case .unavailable(let message):
             setIcon(symbolName: "exclamationmark.triangle", description: "Fn key mode unavailable")
             modeItem.title = message
-            toggleItem.title = "Retry"
+            toggleItem.title = "Retry and Switch"
             toggleItem.isEnabled = true
         }
 
