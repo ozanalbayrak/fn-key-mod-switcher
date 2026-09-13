@@ -10,6 +10,17 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     func applicationDidFinishLaunching(_ notification: Notification) {
         let statusBar = StatusBarController(controller: modeController)
         statusBar.onOpenSettings = { [settings] in settings.show() }
+        statusBar.launchAtLoginProvider = { LaunchAtLogin.isEnabled }
+        statusBar.onToggleLaunchAtLogin = {
+            do {
+                try LaunchAtLogin.setEnabled(!LaunchAtLogin.isEnabled)
+            } catch {
+                let alert = NSAlert()
+                alert.messageText = "Could not update Launch at Login"
+                alert.informativeText = error.localizedDescription
+                alert.runModal()
+            }
+        }
         self.statusBar = statusBar
 
         KeyboardShortcuts.onKeyUp(for: .toggleFnMode) { [modeController] in
