@@ -26,8 +26,8 @@ final class FnKeyModeControllerTests: XCTestCase {
     private var controller: FnKeyModeController!
     private var observed: [FnKeyModeController.State] = []
 
-    override func setUp() {
-        super.setUp()
+    override func setUp() async throws {
+        try await super.setUp()
         backend = FakeBackend()
         center = NotificationCenter()
         controller = FnKeyModeController(backend: backend, notificationCenter: center)
