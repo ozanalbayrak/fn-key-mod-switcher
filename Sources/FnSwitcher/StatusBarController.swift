@@ -1,5 +1,6 @@
 import AppKit
 import FnSwitcherCore
+import KeyboardShortcuts
 
 /// Owns the NSStatusItem and its menu; mirrors `FnKeyModeController.state`.
 final class StatusBarController: NSObject, NSMenuDelegate {
@@ -37,6 +38,7 @@ final class StatusBarController: NSObject, NSMenuDelegate {
 
         toggleItem.target = self
         toggleItem.action = #selector(toggleMode)
+        toggleItem.setShortcut(for: .toggleFnMode)
         menu.addItem(toggleItem)
 
         menu.addItem(.separator())
@@ -88,9 +90,15 @@ final class StatusBarController: NSObject, NSMenuDelegate {
     // MARK: - NSMenuDelegate
 
     func menuWillOpen(_ menu: NSMenu) {
+        // NSMenu tracking buffers global hotkey events; pause them so they don't fire on close.
+        KeyboardShortcuts.disable(.toggleFnMode)
         // Re-read in case a change notification was missed.
         controller.refresh()
         render()
+    }
+
+    func menuDidClose(_ menu: NSMenu) {
+        KeyboardShortcuts.enable(.toggleFnMode)
     }
 
     // MARK: - Actions
