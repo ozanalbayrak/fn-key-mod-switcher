@@ -13,7 +13,17 @@ global keyboard shortcut — no more digging through System Settings.
 
 Runs on macOS 13+.
 
-### Download (recommended)
+### Homebrew (recommended)
+
+```bash
+brew install --cask ozanalbayrak/tap/fnswitcher
+```
+
+Homebrew 6+ asks you to trust third-party taps the first time:
+`brew trust ozanalbayrak/tap`. The cask clears the quarantine flag for you,
+so the app opens without the Gatekeeper dialog.
+
+### Download
 
 1. Grab `FnSwitcher-<version>.zip` from the
    [latest release](https://github.com/ozanalbayrak/fn-key-mod-switcher/releases/latest)
@@ -27,7 +37,7 @@ Runs on macOS 13+.
    (or open it once via System Settings → Privacy & Security → *Open Anyway*).
 4. `open /Applications/FnSwitcher.app`
 
-Homebrew tap: coming soon.
+Apple Silicon only for now.
 
 ### Build from source
 
@@ -72,12 +82,17 @@ CI runs `swift test` and `scripts/build.sh` on every push and pull request.
 ### Releasing
 
 Push a `v*` tag; the release workflow builds, zips and publishes a GitHub
-release with the SHA-256 in the notes:
+release with the SHA-256 in the notes, then bumps the Homebrew cask in
+[ozanalbayrak/homebrew-tap](https://github.com/ozanalbayrak/homebrew-tap):
 
 ```bash
 git tag v1.0.0
 git push origin v1.0.0
 ```
+
+## Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md). Security issues: [SECURITY.md](SECURITY.md).
 
 ## License
 

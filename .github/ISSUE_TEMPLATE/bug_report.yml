@@ -1,0 +1,33 @@
+name: Bug report
+description: Something doesn't work as expected
+labels: [bug]
+body:
+  - type: input
+    id: version
+    attributes:
+      label: FnSwitcher version
+      description: Menu bar icon → Settings…, or `/Applications/FnSwitcher.app/Contents/Info.plist`
+      placeholder: "0.1.0"
+    validations:
+      required: true
+  - type: input
+    id: macos
+    attributes:
+      label: macOS version and Mac model
+      placeholder: "macOS 26.1, MacBook Pro M3"
+    validations:
+      required: true
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened?
+      description: What did you do, what did you expect, what happened instead?
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Extra context
+      description: |
+        Output of `ioreg -l -w0 | grep -o '"HIDFKeyMode"=[0-9]' | sort | uniq -c`
+        and `defaults read -g com.apple.keyboard.fnState`, crash reports, screenshots.
