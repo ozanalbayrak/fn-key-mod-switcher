@@ -11,7 +11,7 @@ global keyboard shortcut — no more digging through System Settings.
 
 ## Install
 
-Requires macOS 13+ and Xcode 15+ command line tools.
+Runs on macOS 13+. Building requires Xcode 26 (Swift 6.2) or later.
 
 ```bash
 git clone https://github.com/ozanalbayrak/fn-key-mod-switcher.git
@@ -21,8 +21,8 @@ open /Applications/FnSwitcher.app
 ```
 
 `scripts/build.sh` without `--install` leaves the bundle at `build/FnSwitcher.app`.
-The app is ad-hoc signed; on first launch you may need to allow it in
-System Settings → Privacy & Security.
+After installing, always launch the copy in `/Applications` (not the one in
+`build/`) so that Launch at Login points at the installed app.
 
 ## Usage
 
