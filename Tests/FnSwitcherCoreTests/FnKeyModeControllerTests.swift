@@ -83,4 +83,23 @@ final class FnKeyModeControllerTests: XCTestCase {
         controller.refresh()
         XCTAssertEqual(observed, [])
     }
+
+    func testHidSystemUnavailableProducesConnectionMessage() {
+        backend.failure = .hidSystemUnavailable(-2)
+        controller.refresh()
+        XCTAssertEqual(
+            controller.state,
+            .unavailable("Could not connect to the keyboard system (error -2).")
+        )
+    }
+
+    func testToggleWhileUnavailableStaysUnavailableIfRetryReadFails() {
+        backend.failure = .readFailed(-1)
+        controller.refresh()
+        XCTAssertEqual(controller.state, .unavailable("Could not read the Fn key mode (error -1)."))
+
+        controller.toggle()
+        XCTAssertEqual(controller.state, .unavailable("Could not read the Fn key mode (error -1)."))
+        XCTAssertEqual(backend.writes, [])
+    }
 }
