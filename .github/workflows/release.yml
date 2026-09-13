@@ -12,8 +12,11 @@ jobs:
     runs-on: macos-26
     env:
       TAG: ${{ github.ref_name }}
+    outputs:
+      version: ${{ steps.meta.outputs.version }}
+      sha256: ${{ steps.meta.outputs.sha256 }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Toolchain
         run: |
           xcodebuild -version
@@ -22,12 +25,23 @@ jobs:
         run: swift test
       - name: Build and zip
         run: VERSION="${TAG#v}" BUILD_NUMBER="${{ github.run_number }}" scripts/build.sh --zip
+      - name: Artifact metadata
+        id: meta
+        run: |
+          ZIP=$(ls build/FnSwitcher-*.zip)
+          echo "version=${TAG#v}" >> "$GITHUB_OUTPUT"
+          echo "sha256=$(shasum -a 256 "$ZIP" | cut -d' ' -f1)" >> "$GITHUB_OUTPUT"
       - name: Release notes
         run: |
           ZIP=$(ls build/FnSwitcher-*.zip)
-          SHA=$(shasum -a 256 "$ZIP" | cut -d' ' -f1)
           cat > release-notes.md <<NOTES
           ## Install
+
+          \`\`\`bash
+          brew install --cask ozanalbayrak/tap/fnswitcher
+          \`\`\`
+
+          Or manually:
 
           1. Download \`$(basename "$ZIP")\` below and unzip it.
           2. Move \`FnSwitcher.app\` to \`/Applications\`.
@@ -37,7 +51,7 @@ jobs:
              \`\`\`
              (or open it once via System Settings → Privacy & Security → *Open Anyway*).
 
-          SHA-256: \`$SHA\`
+          SHA-256: \`${{ steps.meta.outputs.sha256 }}\`
           NOTES
       - name: Create GitHub release
         env:
@@ -47,3 +61,40 @@ jobs:
             --title "FnSwitcher ${TAG#v}" \
             --notes-file release-notes.md \
             --generate-notes
+
+  # Bumps Casks/fnswitcher.rb in ozanalbayrak/homebrew-tap. Skipped when the
+  # TAP_GITHUB_TOKEN secret (fine-grained PAT, contents:write on the tap repo)
+  # is not configured.
+  bump-tap:
+    needs: release
+    runs-on: ubuntu-latest
+    env:
+      TAP_GITHUB_TOKEN: ${{ secrets.TAP_GITHUB_TOKEN }}
+    steps:
+      - name: Check for tap token
+        id: token
+        run: |
+          if [ -z "$TAP_GITHUB_TOKEN" ]; then
+            echo "TAP_GITHUB_TOKEN not set; skipping Homebrew cask bump." >> "$GITHUB_STEP_SUMMARY"
+            echo "present=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "present=true" >> "$GITHUB_OUTPUT"
+          fi
+      - uses: actions/checkout@v5
+        if: steps.token.outputs.present == 'true'
+        with:
+          repository: ozanalbayrak/homebrew-tap
+          token: ${{ secrets.TAP_GITHUB_TOKEN }}
+      - name: Update cask
+        if: steps.token.outputs.present == 'true'
+        env:
+          VERSION: ${{ needs.release.outputs.version }}
+          SHA256: ${{ needs.release.outputs.sha256 }}
+        run: |
+          sed -i -E "s|^  version \".*\"|  version \"$VERSION\"|" Casks/fnswitcher.rb
+          sed -i -E "s|^  sha256 \".*\"|  sha256 \"$SHA256\"|" Casks/fnswitcher.rb
+          git diff --exit-code && { echo "Cask already at $VERSION"; exit 0; }
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -am "fnswitcher $VERSION"
+          git push

@@ -1,0 +1,15 @@
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    assignees: [ozanalbayrak]
+    labels: [dependencies]
+
+  - package-ecosystem: swift
+    directory: /
+    schedule:
+      interval: weekly
+    assignees: [ozanalbayrak]
+    labels: [dependencies]
