@@ -1,0 +1,49 @@
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: macos-26
+    env:
+      TAG: ${{ github.ref_name }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Toolchain
+        run: |
+          xcodebuild -version
+          swift --version
+      - name: Unit tests
+        run: swift test
+      - name: Build and zip
+        run: VERSION="${TAG#v}" BUILD_NUMBER="${{ github.run_number }}" scripts/build.sh --zip
+      - name: Release notes
+        run: |
+          ZIP=$(ls build/FnSwitcher-*.zip)
+          SHA=$(shasum -a 256 "$ZIP" | cut -d' ' -f1)
+          cat > release-notes.md <<NOTES
+          ## Install
+
+          1. Download \`$(basename "$ZIP")\` below and unzip it.
+          2. Move \`FnSwitcher.app\` to \`/Applications\`.
+          3. The app is not notarized, so on first launch run:
+             \`\`\`bash
+             xattr -d com.apple.quarantine /Applications/FnSwitcher.app
+             \`\`\`
+             (or open it once via System Settings → Privacy & Security → *Open Anyway*).
+
+          SHA-256: \`$SHA\`
+          NOTES
+      - name: Create GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "$TAG" build/FnSwitcher-*.zip \
+            --title "FnSwitcher ${TAG#v}" \
+            --notes-file release-notes.md \
+            --generate-notes

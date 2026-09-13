@@ -1,5 +1,13 @@
 #!/usr/bin/env bash
-# Builds FnSwitcher.app into ./build. Pass --install to copy it to /Applications.
+# Builds FnSwitcher.app into ./build.
+#
+#   scripts/build.sh            build only
+#   scripts/build.sh --install  also copy to /Applications
+#   scripts/build.sh --zip      also produce build/FnSwitcher-<version>.zip
+#
+# Environment:
+#   VERSION       CFBundleShortVersionString (default: 0.0.0-dev)
+#   BUILD_NUMBER  CFBundleVersion            (default: 1)
 #
 # Uses xcodebuild rather than `swift build` because SwiftPM's generated
 # resource-bundle accessor only looks for the KeyboardShortcuts bundle at
@@ -10,6 +18,8 @@
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
+VERSION="${VERSION:-0.0.0-dev}"
+BUILD_NUMBER="${BUILD_NUMBER:-1}"
 DERIVED_DATA="build/DerivedData"
 PRODUCTS="$DERIVED_DATA/Build/Products/Release"
 
@@ -22,6 +32,9 @@ rm -rf "$APP"
 mkdir -p "$APP/Contents/MacOS" "$APP/Contents/Resources"
 cp "$PRODUCTS/FnSwitcher" "$APP/Contents/MacOS/"
 cp Resources/Info.plist "$APP/Contents/"
+/usr/libexec/PlistBuddy -c "Set :CFBundleShortVersionString $VERSION" \
+                        -c "Set :CFBundleVersion $BUILD_NUMBER" \
+                        "$APP/Contents/Info.plist"
 
 # SwiftPM resource bundles (KeyboardShortcuts localizations).
 for bundle in "$PRODUCTS"/*.bundle; do
@@ -29,11 +42,27 @@ for bundle in "$PRODUCTS"/*.bundle; do
 done
 
 codesign --force --sign - "$APP"
-echo "Built $APP"
+echo "Built $APP ($VERSION, build $BUILD_NUMBER)"
 
-if [[ "${1:-}" == "--install" ]]; then
-    rm -rf /Applications/FnSwitcher.app
-    cp -R "$APP" /Applications/
-    rm -rf "$APP"
-    echo "Installed /Applications/FnSwitcher.app"
-fi
+case "${1:-}" in
+    --install)
+        rm -rf /Applications/FnSwitcher.app
+        cp -R "$APP" /Applications/
+        rm -rf "$APP"
+        echo "Installed /Applications/FnSwitcher.app"
+        ;;
+    --zip)
+        # ditto keeps the bundle structure, symlinks and extended attributes intact,
+        # which a plain `zip -r` does not.
+        ZIP="build/FnSwitcher-$VERSION.zip"
+        rm -f "$ZIP"
+        ditto -c -k --sequesterRsrc --keepParent "$APP" "$ZIP"
+        echo "Zipped $ZIP"
+        ;;
+    "")
+        ;;
+    *)
+        echo "Unknown option: $1" >&2
+        exit 2
+        ;;
+esac
