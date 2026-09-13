@@ -387,12 +387,18 @@ public final class FnKeyModeController {
         self.notificationCenter = notificationCenter
         self.state = Self.read(from: backend)
 
+        // queue: nil → delivered synchronously on the posting thread. The
+        // distributed center delivers on the main thread; tests post from main.
         observer = notificationCenter.addObserver(
             forName: .fnStateDidChange,
             object: nil,
-            queue: .main
+            queue: nil
         ) { [weak self] _ in
-            MainActor.assumeIsolated { self?.refresh() }
+            if Thread.isMainThread {
+                MainActor.assumeIsolated { self?.refresh() }
+            } else {
+                Task { @MainActor in self?.refresh() }
+            }
         }
     }
 
