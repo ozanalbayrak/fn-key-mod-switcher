@@ -36,10 +36,13 @@ cp Resources/Info.plist "$APP/Contents/"
                         -c "Set :CFBundleVersion $BUILD_NUMBER" \
                         "$APP/Contents/Info.plist"
 
-# SwiftPM resource bundles (KeyboardShortcuts localizations).
+# SwiftPM resource bundles (our menu bar PDFs, KeyboardShortcuts localizations).
 for bundle in "$PRODUCTS"/*.bundle; do
     [ -e "$bundle" ] && cp -R "$bundle" "$APP/Contents/Resources/"
 done
+
+# App icon: the iconset PNGs are the committed source; iconutil ships with macOS.
+iconutil -c icns Resources/AppIcon.iconset -o "$APP/Contents/Resources/AppIcon.icns"
 
 codesign --force --sign - "$APP"
 echo "Built $APP ($VERSION, build $BUILD_NUMBER)"
