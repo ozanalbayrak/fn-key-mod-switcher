@@ -34,11 +34,12 @@ public enum FnKeyMode: Sendable, Equatable, CaseIterable {
         "Switch to \(toggled.title)"
     }
 
-    /// SF Symbol shown in the menu bar while this mode is active.
-    public var menuBarSymbolName: String {
+    /// Name of the template image (bundled PDF) shown in the menu bar while
+    /// this mode is active.
+    public var menuBarImageName: String {
         switch self {
-        case .functionKeys: "keyboard"
-        case .mediaKeys: "sun.max"
+        case .functionKeys: "menubar-fkey"
+        case .mediaKeys: "menubar-media"
         }
     }
 }

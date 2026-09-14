@@ -23,7 +23,7 @@ final class FnKeyModeTests: XCTestCase {
         XCTAssertEqual(FnKeyMode.mediaKeys.title, "Media Keys")
         XCTAssertEqual(FnKeyMode.functionKeys.switchActionTitle, "Switch to Media Keys")
         XCTAssertEqual(FnKeyMode.mediaKeys.switchActionTitle, "Switch to Standard F1–F12")
-        XCTAssertEqual(FnKeyMode.functionKeys.menuBarSymbolName, "keyboard")
-        XCTAssertEqual(FnKeyMode.mediaKeys.menuBarSymbolName, "sun.max")
+        XCTAssertEqual(FnKeyMode.functionKeys.menuBarImageName, "menubar-fkey")
+        XCTAssertEqual(FnKeyMode.mediaKeys.menuBarImageName, "menubar-media")
     }
 }
