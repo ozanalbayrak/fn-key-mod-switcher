@@ -13,7 +13,9 @@ focused.
    swift test          # unit tests
    scripts/build.sh    # builds build/FnSwitcher.app; try it from the menu bar
    ```
-4. Open a pull request. CI must pass and the maintainer must approve before it
+4. Add a line under **Unreleased** in `CHANGELOG.md` if the change is
+   user-visible.
+5. Open a pull request. CI must pass and the maintainer must approve before it
    can be merged; `main` does not accept direct pushes.
 
 ## Guidelines
@@ -26,6 +28,8 @@ focused.
 
 ## Releasing (maintainer)
 
-Push a `v*` tag. The release workflow runs the tests, builds the app, publishes
-a GitHub release and bumps the Homebrew cask in
+Move the **Unreleased** entries in `CHANGELOG.md` under a new version heading,
+merge that, then push a `v*` tag. The release workflow runs the tests, builds
+the app, publishes a GitHub release (with the changelog section as notes) and
+bumps the Homebrew cask in
 [ozanalbayrak/homebrew-tap](https://github.com/ozanalbayrak/homebrew-tap).

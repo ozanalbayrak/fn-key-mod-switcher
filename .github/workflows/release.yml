@@ -34,7 +34,20 @@ jobs:
       - name: Release notes
         run: |
           ZIP=$(ls build/FnSwitcher-*.zip)
-          cat > release-notes.md <<NOTES
+          # Section for this version from CHANGELOG.md (between its "## [x.y.z]"
+          # heading and the next "## [" heading); empty if the version isn't listed.
+          awk -v v="${TAG#v}" '
+            /^## \[/ { in_section = index($0, "## [" v "]") == 1; next }
+            in_section && !/^\[/ { print }
+          ' CHANGELOG.md | sed -e '/./,$!d' -e :a -e '/^\n*$/{$d;N;ba' -e '}' > changelog-section.md
+          {
+            if [ -s changelog-section.md ]; then
+              echo "## What's new"
+              echo
+              cat changelog-section.md
+              echo
+            fi
+            cat <<NOTES
           ## Install
 
           \`\`\`bash
@@ -53,6 +66,7 @@ jobs:
 
           SHA-256: \`${{ steps.meta.outputs.sha256 }}\`
           NOTES
+          } > release-notes.md
       - name: Create GitHub release
         env:
           GH_TOKEN: ${{ github.token }}
