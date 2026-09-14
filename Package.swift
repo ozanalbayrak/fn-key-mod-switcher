@@ -19,6 +19,7 @@ let package = Package(
                 .product(name: "KeyboardShortcuts", package: "KeyboardShortcuts"),
             ],
             path: "Sources/FnSwitcher",
+            resources: [.copy("Resources/menubar-fkey.pdf"), .copy("Resources/menubar-media.pdf")],
             swiftSettings: [.defaultIsolation(MainActor.self)]
         ),
         .testTarget(

@@ -1,10 +1,12 @@
-# FnSwitcher
+<p align="center">
+  <img src="design/design_handoff_fnswitcher_identity/assets/banner-1600x400.png" width="640" alt="FnSwitcher">
+</p>
 
 A tiny macOS menu bar app that toggles the F1–F12 keys between
 **standard function keys** and **media keys** (brightness, volume, …) with a
 global keyboard shortcut — no more digging through System Settings.
 
-- Menu bar icon shows the current mode (`⌨` = standard F1–F12, `☀` = media keys)
+- Menu bar icon shows the current mode (a keycap with **F** = standard F1–F12, with a sun = media keys)
 - Configurable global shortcut (default **⌃⌥F**)
 - Launch at Login
 - No Accessibility / Input Monitoring permission required
@@ -68,6 +70,12 @@ sets it via `IOHIDSetParameter`, mirrors it into the
 `com.apple.keyboard.fnstatedidchange` so System Settings stays in sync. It also
 listens for that notification, so changes made in System Settings show up in
 the menu bar immediately.
+
+## Design
+
+The icon, logo and menu bar glyphs live in [`design/`](design/design_handoff_fnswitcher_identity/README.md)
+(SVG sources of truth plus a review board). `Resources/AppIcon.iconset` and the
+menu bar PDFs in `Sources/FnSwitcher/Resources` are copied from there.
 
 ## Development
 

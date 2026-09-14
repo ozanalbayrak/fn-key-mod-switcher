@@ -61,12 +61,12 @@ final class StatusBarController: NSObject, NSMenuDelegate {
     private func render() {
         switch controller.state {
         case .mode(let mode):
-            setIcon(symbolName: mode.menuBarSymbolName, description: mode.title)
+            setIcon(MenuBarIcon.image(for: mode), description: mode.title)
             modeItem.title = "Mode: \(mode.title)"
             toggleItem.title = mode.switchActionTitle
             toggleItem.isEnabled = true
         case .unavailable(let message):
-            setIcon(symbolName: "exclamationmark.triangle", description: "Fn key mode unavailable")
+            setIcon(MenuBarIcon.unavailable, description: "Fn key mode unavailable")
             modeItem.title = message
             toggleItem.title = "Retry and Switch"
             toggleItem.isEnabled = true
@@ -80,9 +80,8 @@ final class StatusBarController: NSObject, NSMenuDelegate {
         }
     }
 
-    private func setIcon(symbolName: String, description: String) {
-        let image = NSImage(systemSymbolName: symbolName, accessibilityDescription: description)
-        image?.isTemplate = true
+    private func setIcon(_ image: NSImage?, description: String) {
+        image?.accessibilityDescription = description
         statusItem.button?.image = image
         statusItem.button?.toolTip = "FnSwitcher — \(description)"
     }
